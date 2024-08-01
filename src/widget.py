@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from typing import Tuple
 
-from mask import get_mask_account, get_mask_card_number
+from src.mask import get_mask_account, get_mask_card_number
 
 
 def extract_digits(input_string: str) -> str:
@@ -18,23 +18,23 @@ def extract_digits(input_string: str) -> str:
     return re.sub(r"\D", "", input_string)
 
 
-def extract_word_and_number(input_string: str) -> Tuple[str, str]:
+def extract_word_and_numbers(input_string: str) -> Tuple[str, str]:
     """
-    Извлекает слово перед номером и сам номер из строки.
+    Извлекает слово перед номерами и все номера из строки.
 
     Args:
         input_string (str): Входная строка.
 
     Returns:
-        tuple: Пара (слово, номер).
+        tuple: Пара (слово, строка всех номеров).
     """
-    match = re.match(r"(\D+)?(\d+)", input_string)
+    match = re.match(r"(\D+)?(.+)", input_string)
     if match:
         word = match.group(1).strip() if match.group(1) else ""
-        number = match.group(2)
-        return word, number
+        numbers = re.sub(r"\D", "", match.group(2))  # Убираем всё нецифровое
+        return word, numbers
     else:
-        return "", input_string
+        return "", re.sub(r"\D", "", input_string)
 
 
 def mask_account_card(input_string: str) -> str:
@@ -46,14 +46,22 @@ def mask_account_card(input_string: str) -> str:
 
     Returns:
         str: Маскированный номер.
+
+    Raises:
+        ValueError: Если входная строка не является числовой или слишком короткой.
     """
-    word, number = extract_word_and_number(input_string)
+    word, number = extract_word_and_numbers(input_string)
     length = len(number)
+
+    if not number.isdigit():
+        raise ValueError("Invalid input, expected a string of digits")
 
     if length == 16:
         masked_number = get_mask_card_number(number)
-    else:
+    elif length >= 5:
         masked_number = get_mask_account(number)
+    else:
+        raise ValueError("Number is too short")
 
     return f"{word} {masked_number}".strip()
 
@@ -68,17 +76,18 @@ def get_date(date_user: str) -> str:
     Returns:
         str: Дата в формате "ДД.ММ.ГГГГ".
     """
-    # Преобразуем строку даты в объект datetime
-    date_obj = datetime.fromisoformat(date_user)
+    date_pattern = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+$")
+    if not date_pattern.match(date_user):
+        raise ValueError("Invalid date format, expected 'YYYY-MM-DDTHH:MM:SS.SSSSSS'")
 
-    # Преобразуем дату в нужный формат
-    formatted_date = date_obj.strftime("%d.%m.%Y")
+    try:
+        date_obj = datetime.fromisoformat(date_user)
+        return date_obj.strftime("%d.%m.%Y")
+    except ValueError:
+        raise ValueError("Invalid date")
 
-    return formatted_date
 
-
-# Пример использования для форматирования даты
-if __name__ == "__main__":
+def main():
     # Пример использования для форматирования даты
     date_user = input("Введите дату платежа (например, '2024-03-11T02:26:18.671407'): ")
     try:
@@ -96,3 +105,7 @@ if __name__ == "__main__":
             print("Замаскированные данные:", result)
         except ValueError as e:
             print(f"Ошибка: {e}")
+
+
+if __name__ == "__main__":
+    main()
