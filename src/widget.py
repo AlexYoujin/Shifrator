@@ -2,8 +2,6 @@ import re
 from datetime import datetime
 from typing import Tuple
 
-from src.mask import get_mask_account, get_mask_card_number
-
 
 def extract_digits(input_string: str) -> str:
     """
@@ -28,42 +26,67 @@ def extract_word_and_numbers(input_string: str) -> Tuple[str, str]:
     Returns:
         tuple: Пара (слово, строка всех номеров).
     """
-    match = re.match(r"(\D+)?(.+)", input_string)
+    match = re.match(r"(\D+)?([\d\s]+)", input_string)
     if match:
         word = match.group(1).strip() if match.group(1) else ""
-        numbers = re.sub(r"\D", "", match.group(2))  # Убираем всё нецифровое
-        return word, numbers
+        number = re.sub(r"\s", "", match.group(2))  # Убираем пробелы из числовой части
+        return word, number
     else:
-        return "", re.sub(r"\D", "", input_string)
+        return "", input_string
 
 
-def mask_account_card(input_string: str) -> str:
+def mask_account_card(input_str):
     """
-    Определяет тип номера и маскирует его соответствующим образом.
+        Определяет тип номера и маскирует его соответствующим образом.
 
-    Args:
-        input_string (str): Номер банковской карты или счета.
+        Args:
+            input_string (str): Номер банковской карты или счета.
 
-    Returns:
-        str: Маскированный номер.
+        Returns:
+            str: Маскированный номер.
 
-    Raises:
-        ValueError: Если входная строка не является числовой или слишком короткой.
-    """
-    word, number = extract_word_and_numbers(input_string)
-    length = len(number)
+        Raises:
+            ValueError: Если входная строка не является числовой или слишком короткой.
+        """
 
-    if not number.isdigit():
-        raise ValueError("Invalid input, expected a string of digits")
+    def mask_account(account):
+        if len(account) < 5 or not account.isdigit():
+            raise ValueError("Invalid account number")
+        return "*" * (len(account) - 4) + account[-4:]
 
-    if length == 16:
-        masked_number = get_mask_card_number(number)
-    elif length >= 5:
-        masked_number = get_mask_account(number)
+    def mask_card(card):
+        if len(card) != 16 or not card.isdigit():
+            raise ValueError("Invalid card number")
+        return card[:4] + " " + card[4:6] + "** **** " + card[-4:]
+
+    account_match = re.search(r'Account (\d+)', input_str)
+    card_match = re.search(r'Card (\d{4} \d{4} \d{4} \d{4})', input_str)
+    raw_card_match = re.search(r'Card (\d+)', input_str)
+
+    if account_match:
+        account = account_match.group(1)
+        if not account.isdigit():
+            raise ValueError("Invalid account number")
+        return input_str.replace(account, mask_card(account) if len(account) == 16 else mask_account(account))
+    elif card_match:
+        card = card_match.group(1).replace(" ", "")
+        if not card.isdigit():
+            raise ValueError("Invalid card number")
+        return input_str.replace(card_match.group(1), mask_card(card))
+    elif raw_card_match:
+        card = raw_card_match.group(1)
+        if not card.isdigit() or len(card) != 16:
+            raise ValueError("Invalid card number")
+        return input_str.replace(card, mask_card(card))
+    elif input_str.isdigit():
+        if len(input_str) == 16:
+            return mask_card(input_str)
+        elif len(input_str) >= 5:
+            return mask_account(input_str)
+        else:
+            raise ValueError("Invalid input")
     else:
-        raise ValueError("Number is too short")
-
-    return f"{word} {masked_number}".strip()
+        raise ValueError("Invalid input")
 
 
 def get_date(date_user: str) -> str:

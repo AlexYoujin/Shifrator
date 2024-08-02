@@ -38,19 +38,31 @@ def invalid_card_number():
     return "abcdabcdabcdabcd"
 
 
-def test_get_mask_account(valid_account_number, short_account_number, invalid_account_number):
-    assert get_mask_account(valid_account_number) == "******7890"
-    assert get_mask_account(short_account_number) == "*2345"
-    with pytest.raises(ValueError):
-        get_mask_account("1234")  # Слишком короткий номер
-    with pytest.raises(ValueError):
-        get_mask_account(invalid_account_number)  # Не числовой ввод
+@pytest.mark.parametrize(
+    "account_number,expected", [("1234567890", "******7890"), ("12345", "*2345")]
+)
+def test_get_mask_account(account_number, expected):
+    assert get_mask_account(account_number) == expected
 
 
-def test_get_mask_card_number(valid_card_number, another_valid_card_number, short_card_number, invalid_card_number):
-    assert get_mask_card_number(valid_card_number) == "1234 56** **** 5678"
-    assert get_mask_card_number(another_valid_card_number) == "0000 11** **** 3333"
+@pytest.mark.parametrize("account_number", ["1234", "abcd"])
+def test_get_mask_account_raises(account_number):
     with pytest.raises(ValueError):
-        get_mask_card_number(short_card_number)  # Слишком короткий номер
+        get_mask_account(account_number)
+
+
+@pytest.mark.parametrize(
+    "card_number,expected",
+    [
+        ("1234567812345678", "1234 56** **** 5678"),
+        ("0000111122223333", "0000 11** **** 3333"),
+    ],
+)
+def test_get_mask_card_number(card_number, expected):
+    assert get_mask_card_number(card_number) == expected
+
+
+@pytest.mark.parametrize("card_number", ["12345678", "abcdabcdabcdabcd"])
+def test_get_mask_card_number_raises(card_number):
     with pytest.raises(ValueError):
-        get_mask_card_number(invalid_card_number)  # Не числовой ввод
+        get_mask_card_number(card_number)
