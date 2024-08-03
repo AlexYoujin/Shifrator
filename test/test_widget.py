@@ -1,7 +1,7 @@
 import pytest
 
-from src.widget import mask_account_card
-
+from src.widget import mask_account_card, extract_word_and_numbers, extract_digits
+from src.processing import get_date
 
 # Фикстуры для тестов
 @pytest.fixture
@@ -48,6 +48,15 @@ def test_mask_account_card(input_str, expected) -> None:
     assert mask_account_card(input_str) == expected
 
 
+def test_extract_words_and_numbers(valid_card_input):
+    assert extract_word_and_numbers(valid_card_input) == ("Card", "1234567812345678")
+    assert extract_word_and_numbers("") == ("", "")
+
+
+def test_extract_digits(valid_card_input):
+    assert extract_digits(valid_card_input) == "1234567812345678"
+
+
 @pytest.mark.parametrize("input_str", [
     "invalid_input", "1234", "Account 1234", "Account abcdefghijklmnop"
 ])
@@ -61,7 +70,6 @@ def test_mask_account_card_raises(input_str) -> None:
     ("2021-12-25T15:00:00.000000", "25.12.2021")
 ])
 def test_get_date(date_str, expected):
-    from src.processing import get_date
     assert get_date(date_str) == expected
 
 
@@ -72,6 +80,5 @@ def test_get_date(date_str, expected):
     "2024-03-11T02:26:61.671407", "", "2024-03-11T02:26", "2024-03-11T02:26:18", "2024-03-11T"
 ])
 def test_get_date_raises(date_str):
-    from src.processing import get_date
     with pytest.raises(ValueError):
         get_date(date_str)
