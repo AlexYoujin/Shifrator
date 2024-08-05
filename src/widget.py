@@ -18,7 +18,7 @@ def extract_digits(input_string: str) -> str:
 
 def extract_word_and_numbers(input_string: str) -> Tuple[str, str]:
     """
-    Извлекает слово перед номерами и все номера из строки.
+    Извлекает первое слово и все номера из строки.
 
     Args:
         input_string (str): Входная строка.
@@ -26,28 +26,29 @@ def extract_word_and_numbers(input_string: str) -> Tuple[str, str]:
     Returns:
         tuple: Пара (слово, строка всех номеров).
     """
-    match = re.match(r"(\D+)?([\d\s]+)", input_string)
-    if match:
-        word = match.group(1).strip() if match.group(1) else ""
-        number = re.sub(r"\s", "", match.group(2))  # Убираем пробелы из числовой части
-        return word, number
-    else:
-        return "", input_string
+    # Найти первую последовательность букв
+    word_match = re.search(r"[a-zA-Z]+", input_string)
+    word = word_match.group(0) if word_match else ""
+
+    # Найти все числа и объединить их в одну строку
+    numbers = "".join(re.findall(r"\d+", input_string))
+
+    return word, numbers
 
 
 def mask_account_card(input_str):
     """
-        Определяет тип номера и маскирует его соответствующим образом.
+    Определяет тип номера и маскирует его соответствующим образом.
 
-        Args:
-            input_string (str): Номер банковской карты или счета.
+    Args:
+        input_string (str): Номер банковской карты или счета.
 
-        Returns:
-            str: Маскированный номер.
+    Returns:
+        str: Маскированный номер.
 
-        Raises:
-            ValueError: Если входная строка не является числовой или слишком короткой.
-        """
+    Raises:
+        ValueError: Если входная строка не является числовой или слишком короткой.
+    """
 
     def mask_account(account):
         if len(account) < 5 or not account.isdigit():
@@ -59,15 +60,17 @@ def mask_account_card(input_str):
             raise ValueError("Invalid card number")
         return card[:4] + " " + card[4:6] + "** **** " + card[-4:]
 
-    account_match = re.search(r'Account (\d+)', input_str)
-    card_match = re.search(r'Card (\d{4} \d{4} \d{4} \d{4})', input_str)
-    raw_card_match = re.search(r'Card (\d+)', input_str)
+    account_match = re.search(r"Account (\d+)", input_str)
+    card_match = re.search(r"Card (\d{4} \d{4} \d{4} \d{4})", input_str)
+    raw_card_match = re.search(r"Card (\d+)", input_str)
 
     if account_match:
         account = account_match.group(1)
         if not account.isdigit():
             raise ValueError("Invalid account number")
-        return input_str.replace(account, mask_card(account) if len(account) == 16 else mask_account(account))
+        return input_str.replace(
+            account, mask_card(account) if len(account) == 16 else mask_account(account)
+        )
     elif card_match:
         card = card_match.group(1).replace(" ", "")
         if not card.isdigit():
@@ -111,11 +114,10 @@ def get_date(date_user: str) -> str:
 
 
 def main():
-    # Пример использования для форматирования даты
     date_user = input("Введите дату платежа (например, '2024-03-11T02:26:18.671407'): ")
     try:
         formatted_date = get_date(date_user)
-        print("Форматированная дата:", formatted_date)
+        print(f"Форматированная дата: {formatted_date}")
     except ValueError as e:
         print(f"Ошибка при обработке даты: {e}")
 
@@ -125,7 +127,7 @@ def main():
             break
         try:
             result = mask_account_card(user_input)
-            print("Замаскированные данные:", result)
+            print(f"Замаскированные данные: {result}")
         except ValueError as e:
             print(f"Ошибка: {e}")
 

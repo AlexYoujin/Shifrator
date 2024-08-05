@@ -1,19 +1,7 @@
 from datetime import datetime
 from typing import Dict, List
 
-
-def get_date(date_user: str) -> str:
-    import re
-
-    date_pattern = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+$")
-    if not date_pattern.match(date_user):
-        raise ValueError("Invalid date format, expected 'YYYY-MM-DDTHH:MM:SS.SSSSSS'")
-
-    try:
-        date_obj = datetime.fromisoformat(date_user)
-        return date_obj.strftime("%d.%m.%Y")
-    except ValueError:
-        raise ValueError("Invalid date")
+from src.widget import get_date
 
 
 def create_payment_dict(
