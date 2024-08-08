@@ -2,6 +2,9 @@ import re
 from datetime import datetime
 from typing import Tuple
 
+from generators import (card_number_generator, filter_by_currency,
+                        transaction_descriptions)
+
 
 def extract_digits(input_string: str) -> str:
     """
@@ -56,7 +59,7 @@ def mask_account_card(input_str):
         return "*" * (len(account) - 4) + account[-4:]
 
     def mask_card(card):
-        if len(card) != 16 or not card.isdigit():
+        if len(card) != 16:
             raise ValueError("Invalid card number")
         return card[:4] + " " + card[4:6] + "** **** " + card[-4:]
 
@@ -78,7 +81,7 @@ def mask_account_card(input_str):
         return input_str.replace(card_match.group(1), mask_card(card))
     elif raw_card_match:
         card = raw_card_match.group(1)
-        if not card.isdigit() or len(card) != 16:
+        if len(card) != 16:
             raise ValueError("Invalid card number")
         return input_str.replace(card, mask_card(card))
     elif input_str.isdigit():
@@ -111,6 +114,70 @@ def get_date(date_user: str) -> str:
         return date_obj.strftime("%d.%m.%Y")
     except ValueError:
         raise ValueError("Invalid date")
+
+
+# Пример использования filter_by_currency
+transactions = [
+    {
+        "id": 939719570,
+        "state": "EXECUTED",
+        "date": "2018-06-30T02:08:58.425572",
+        "operationAmount": {
+            "amount": "9824.07",
+            "currency": {
+                "name": "USD",
+                "code": "USD"
+            }
+        },
+        "description": "Перевод организации",
+        "from": "Счет 75106830613657916952",
+        "to": "Счет 11776614605963066702"
+    },
+    {
+        "id": 142264268,
+        "state": "EXECUTED",
+        "date": "2019-04-04T23:20:05.206878",
+        "operationAmount": {
+            "amount": "79114.93",
+            "currency": {
+                "name": "USD",
+                "code": "USD"
+            }
+        },
+        "description": "Перевод со счета на счет",
+        "from": "Счет 19708645243227258542",
+        "to": "Счет 75651667383060284188"
+    },
+    {
+        "id": 791923212,
+        "state": "EXECUTED",
+        "date": "2019-06-08T16:32:22.850589",
+        "operationAmount": {
+            "amount": "10451.88",
+            "currency": {
+                "name": "EUR",
+                "code": "EUR"
+            }
+        },
+        "description": "Перевод с карты на карту",
+        "from": "Счет 75106830613657916952",
+        "to": "Счет 11776614605963066702"
+    }
+]
+
+# Использование filter_by_currency
+usd_transactions = filter_by_currency(transactions, "USD")
+for _ in range(2):
+    print(next(usd_transactions))
+
+# Использование transaction_descriptions
+descriptions = transaction_descriptions(transactions)
+for _ in range(3):
+    print(next(descriptions))
+
+# Использование card_number_generator
+for card_number in card_number_generator(1, 5):
+    print(card_number)
 
 
 def main():

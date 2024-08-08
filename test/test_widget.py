@@ -1,11 +1,11 @@
 import unittest
+from unittest.mock import patch
 
 import pytest
 
 from src.processing import get_date
-from src.widget import extract_digits, extract_word_and_numbers, mask_account_card
-from unittest.mock import patch
-from src.widget import main
+from src.widget import (extract_digits, extract_word_and_numbers, main,
+                        mask_account_card)
 
 
 # Фикстуры для тестов
@@ -160,32 +160,15 @@ def test_get_date_invalid_date():
         get_date("2023-13-21T12:34:56.123456")
 
 
-class TestMainFunction(unittest.TestCase):
+class TestMain(unittest.TestCase):
+
+    @patch('builtins.input', side_effect=["2024-03-11T02:26:18.671407", "1234567812345678", "exit"])
+    @patch('builtins.print')
+    def test_main_mask_card(self, mock_print, mock_input):
+        main()
+        mock_print.assert_any_call("Форматированная дата: 11.03.2024")
+        mock_print.assert_any_call("Замаскированные данные: 1234 56** **** 5678")
 
 
-    """Тут не могу добиться корректного теста, поэтому просто запринтую"""
-"""@patch('builtins.input', side_effect=["2024-03-11T02:26:18.671407", "invalid_input", "exit"])
-@patch('builtins.print')
-def test_main_invalid_card(self, mock_print, mock_input):
-    main()
-    mock_print.assert_any_call("Форматированная дата: 11.03.2024")
-    mock_print.assert_any_call("Ошибка: Некорректный номер счета или карты")
-
-@patch('builtins.input', side_effect=["invalid_date", "exit"])
-@patch('builtins.print')
-def test_main_invalid_date(self, mock_print, mock_input):
-    main()
-    mock_print.assert_any_call("Ошибка при обработке даты: Некорректный формат даты")
-"""
-
-
-@patch('builtins.input', side_effect=["2024-03-11T02:26:18.671407", "1234567812345678", "exit"])
-@patch('builtins.print')
-def test_main_mask_card(self, mock_print, mock_input):
-    main()
-    mock_print.assert_any_call("Форматированная дата: 11.03.2024")
-    mock_print.assert_any_call("Замаскированные данные: 1234 56** **** 5678")
-
-
-if __name__ == "__main__":
-    pytest.main()
+if __name__ == '__main__':
+    unittest.main()
