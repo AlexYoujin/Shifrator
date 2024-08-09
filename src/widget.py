@@ -2,8 +2,18 @@ import re
 from datetime import datetime
 from typing import Tuple
 
+from decorators import log
 from generators import (card_number_generator, filter_by_currency,
                         transaction_descriptions)
+
+
+@log()
+def my_function(x, y):
+    return x + y
+
+
+# Вызов функции
+my_function(1, 2)
 
 
 def extract_digits(input_string: str) -> str:
