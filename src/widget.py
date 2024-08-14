@@ -1,10 +1,16 @@
 import re
+import os
 from datetime import datetime
 from typing import Tuple
-
+from dotenv import load_dotenv
+from src.utils import read_transactions
 from decorators import log
-from generators import (card_number_generator, filter_by_currency,
-                        transaction_descriptions)
+from external_api import convert_to_rubles
+from generators import (
+    card_number_generator,
+    filter_by_currency,
+    transaction_descriptions,
+)
 
 
 @log()
@@ -134,14 +140,11 @@ transactions = [
         "date": "2018-06-30T02:08:58.425572",
         "operationAmount": {
             "amount": "9824.07",
-            "currency": {
-                "name": "USD",
-                "code": "USD"
-            }
+            "currency": {"name": "USD", "code": "USD"},
         },
         "description": "Перевод организации",
         "from": "Счет 75106830613657916952",
-        "to": "Счет 11776614605963066702"
+        "to": "Счет 11776614605963066702",
     },
     {
         "id": 142264268,
@@ -149,14 +152,11 @@ transactions = [
         "date": "2019-04-04T23:20:05.206878",
         "operationAmount": {
             "amount": "79114.93",
-            "currency": {
-                "name": "USD",
-                "code": "USD"
-            }
+            "currency": {"name": "USD", "code": "USD"},
         },
         "description": "Перевод со счета на счет",
         "from": "Счет 19708645243227258542",
-        "to": "Счет 75651667383060284188"
+        "to": "Счет 75651667383060284188",
     },
     {
         "id": 791923212,
@@ -164,15 +164,12 @@ transactions = [
         "date": "2019-06-08T16:32:22.850589",
         "operationAmount": {
             "amount": "10451.88",
-            "currency": {
-                "name": "EUR",
-                "code": "EUR"
-            }
+            "currency": {"name": "EUR", "code": "EUR"},
         },
         "description": "Перевод с карты на карту",
         "from": "Счет 75106830613657916952",
-        "to": "Счет 11776614605963066702"
-    }
+        "to": "Счет 11776614605963066702",
+    },
 ]
 
 # Использование filter_by_currency
@@ -188,6 +185,20 @@ for _ in range(3):
 # Использование card_number_generator
 for card_number in card_number_generator(1, 5):
     print(card_number)
+
+
+def main_api():
+    # Получение API ключа из переменной окружения
+    api_key = os.getenv('API_KEY')
+    if not api_key:
+        raise ValueError("API_KEY не найден в переменных окружения")
+
+    file_path = 'data/operations.json'
+    transactions = read_transactions(file_path)
+
+    for transaction in transactions:
+        amount_in_rubles = convert_to_rubles(transaction, api_key)
+        print(f"Транзакция: {transaction['id']}, Сумма в рублях: {amount_in_rubles}")
 
 
 def main():
