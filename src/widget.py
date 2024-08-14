@@ -1,16 +1,13 @@
-import re
 import os
+import re
 from datetime import datetime
 from typing import Tuple
-from dotenv import load_dotenv
+
+from src.decorators import log
+from src.external_api import convert_to_rubles
+from src.generators import (card_number_generator, filter_by_currency,
+                            transaction_descriptions)
 from src.utils import read_transactions
-from decorators import log
-from external_api import convert_to_rubles
-from generators import (
-    card_number_generator,
-    filter_by_currency,
-    transaction_descriptions,
-)
 
 
 @log()
