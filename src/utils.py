@@ -1,7 +1,9 @@
+from pathlib import Path
 import json
-import os
+from decorators import log
 
 
+@log()
 def read_transactions(file_path):
     """
     Читает JSON-файл с финансовыми транзакциями и возвращает список словарей.
@@ -9,15 +11,22 @@ def read_transactions(file_path):
     :param file_path: Путь до JSON-файла.
     :return: Список транзакций или пустой список в случае ошибки.
     """
-    if not os.path.exists(file_path):
-        return []
-
     try:
         with open(file_path, "r", encoding="utf-8") as file:
             data = json.load(file)
             if isinstance(data, list):
                 return data
-    except (json.JSONDecodeError, IOError):
-        pass
+            else:
+                return []
+    except FileNotFoundError:
+        return []
+    except json.JSONDecodeError:
+        return []
 
-    return []
+
+# Пример использования функции
+"""if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parent.parent
+    file_path = project_root / 'data' / 'operations.json'
+    transactions = read_transactions(file_path)
+    print(transactions)"""

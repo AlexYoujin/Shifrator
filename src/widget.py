@@ -2,23 +2,31 @@ import os
 import re
 from datetime import datetime
 from typing import Tuple
-
+from pathlib import Path
 from src.decorators import log
 from src.external_api import convert_to_rubles
-from src.generators import (card_number_generator, filter_by_currency,
-                            transaction_descriptions)
+from src.generators import (
+    card_number_generator,
+    filter_by_currency,
+    transaction_descriptions,
+)
+from src.mask import get_mask_account
 from src.utils import read_transactions
 
 
 @log()
-def my_function(x, y):
+def my_function(x: int, y: int) -> int:
+    """
+    Пример функции для тестирования логирования.
+
+    :param x: Первое число.
+    :param y: Второе число.
+    :return: Сумма двух чисел.
+    """
     return x + y
 
 
-# Вызов функции
-my_function(1, 2)
-
-
+@log()
 def extract_digits(input_string: str) -> str:
     """
     Извлекает цифровую часть из строки.
@@ -32,6 +40,7 @@ def extract_digits(input_string: str) -> str:
     return re.sub(r"\D", "", input_string)
 
 
+@log()
 def extract_word_and_numbers(input_string: str) -> Tuple[str, str]:
     """
     Извлекает первое слово и все номера из строки.
@@ -42,22 +51,19 @@ def extract_word_and_numbers(input_string: str) -> Tuple[str, str]:
     Returns:
         tuple: Пара (слово, строка всех номеров).
     """
-    # Найти первую последовательность букв
     word_match = re.search(r"[a-zA-Z]+", input_string)
     word = word_match.group(0) if word_match else ""
-
-    # Найти все числа и объединить их в одну строку
     numbers = "".join(re.findall(r"\d+", input_string))
-
     return word, numbers
 
 
-def mask_account_card(input_str):
+@log()
+def mask_account_card(input_str: str) -> str:
     """
     Определяет тип номера и маскирует его соответствующим образом.
 
     Args:
-        input_string (str): Номер банковской карты или счета.
+        input_str (str): Номер банковской карты или счета.
 
     Returns:
         str: Маскированный номер.
@@ -66,12 +72,12 @@ def mask_account_card(input_str):
         ValueError: Если входная строка не является числовой или слишком короткой.
     """
 
-    def mask_account(account):
+    def mask_account(account: str) -> str:
         if len(account) < 5 or not account.isdigit():
             raise ValueError("Invalid account number")
         return "*" * (len(account) - 4) + account[-4:]
 
-    def mask_card(card):
+    def mask_card(card: str) -> str:
         if len(card) != 16:
             raise ValueError("Invalid card number")
         return card[:4] + " " + card[4:6] + "** **** " + card[-4:]
@@ -108,6 +114,7 @@ def mask_account_card(input_str):
         raise ValueError("Invalid input")
 
 
+@log()
 def get_date(date_user: str) -> str:
     """
     Преобразует дату из формата "YYYY-MM-DDTHH:MM:SS.SSSSSS" в формат "ДД.ММ.ГГГГ".
@@ -129,68 +136,17 @@ def get_date(date_user: str) -> str:
         raise ValueError("Invalid date")
 
 
-# Пример использования filter_by_currency
-transactions = [
-    {
-        "id": 939719570,
-        "state": "EXECUTED",
-        "date": "2018-06-30T02:08:58.425572",
-        "operationAmount": {
-            "amount": "9824.07",
-            "currency": {"name": "USD", "code": "USD"},
-        },
-        "description": "Перевод организации",
-        "from": "Счет 75106830613657916952",
-        "to": "Счет 11776614605963066702",
-    },
-    {
-        "id": 142264268,
-        "state": "EXECUTED",
-        "date": "2019-04-04T23:20:05.206878",
-        "operationAmount": {
-            "amount": "79114.93",
-            "currency": {"name": "USD", "code": "USD"},
-        },
-        "description": "Перевод со счета на счет",
-        "from": "Счет 19708645243227258542",
-        "to": "Счет 75651667383060284188",
-    },
-    {
-        "id": 791923212,
-        "state": "EXECUTED",
-        "date": "2019-06-08T16:32:22.850589",
-        "operationAmount": {
-            "amount": "10451.88",
-            "currency": {"name": "EUR", "code": "EUR"},
-        },
-        "description": "Перевод с карты на карту",
-        "from": "Счет 75106830613657916952",
-        "to": "Счет 11776614605963066702",
-    },
-]
-
-# Использование filter_by_currency
-usd_transactions = filter_by_currency(transactions, "USD")
-for _ in range(2):
-    print(next(usd_transactions))
-
-# Использование transaction_descriptions
-descriptions = transaction_descriptions(transactions)
-for _ in range(3):
-    print(next(descriptions))
-
-# Использование card_number_generator
-for card_number in card_number_generator(1, 5):
-    print(card_number)
-
-
+@log()
 def main_api():
-    # Получение API ключа из переменной окружения
-    api_key = os.getenv('API_KEY')
+    """
+    Основная функция для работы с API.
+    """
+    api_key = os.getenv("API_KEY")
     if not api_key:
         raise ValueError("API_KEY не найден в переменных окружения")
 
-    file_path = 'data/operations.json'
+    current_dir = Path(__file__).parent
+    file_path = current_dir.parent / 'data' / 'operations.json'
     transactions = read_transactions(file_path)
 
     for transaction in transactions:
@@ -198,7 +154,11 @@ def main_api():
         print(f"Транзакция: {transaction['id']}, Сумма в рублях: {amount_in_rubles}")
 
 
+@log()
 def main():
+    """
+    Основная функция программы.
+    """
     date_user = input("Введите дату платежа (например, '2024-03-11T02:26:18.671407'): ")
     try:
         formatted_date = get_date(date_user)
@@ -215,6 +175,27 @@ def main():
             print(f"Замаскированные данные: {result}")
         except ValueError as e:
             print(f"Ошибка: {e}")
+
+
+#@log()
+#def main_logs():
+    #"""
+    #Пример использования различных функций с логированием.
+    #"""
+    ## Логируем начало программы
+    #print("Запуск программы...")
+
+    ## Пример использования функции read_transactions
+    #transactions = read_transactions('data/operations.json')
+    #print(f'Прочитанные транзакции: {transactions}')
+
+    ## Пример использования функции get_mask_account
+    #print("Запуск функции get_mask_account...")
+    #test_account = "1234567890123456"
+    #masked = get_mask_account(test_account)
+    #print(f'Замаскированный номер счета: {masked}')
+
+    #print("Программа завершена.")
 
 
 if __name__ == "__main__":

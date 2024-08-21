@@ -4,8 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from src.processing import get_date
-from src.widget import (extract_digits, extract_word_and_numbers, main,
-                        mask_account_card)
+from src.widget import extract_digits, extract_word_and_numbers, main, mask_account_card
 
 
 # Фикстуры для тестов

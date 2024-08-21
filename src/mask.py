@@ -1,6 +1,10 @@
+from decorators import log
+
+
+@log()
 def get_mask_card_number(card_number: str) -> str:
     """
-    Маскирует номер банковской карты, скрывая первые 6 и последние 4 цифры.
+    Маскирует номер банковской карты, показывая первые 6 и последние 4 цифры.
     Формат: XXXX XX** **** XXXX
 
     Args:
@@ -14,16 +18,17 @@ def get_mask_card_number(card_number: str) -> str:
     return f"{card_number[:4]} {card_number[4:6]}** **** {card_number[-4:]}"
 
 
+@log()
 def get_mask_account(account_number: str) -> str:
     """
-    Маскирует номер банковского счета, показывая только 2 звезды и последние 4 цифры.
+    Маскирует номер счета, оставляя только последние 4 цифры.
+    Формат: **XXXX
 
-    Args:
-        account_number (str): Номер банковского счета.
-
-    Returns:
-        str: Маскированный номер счета.
+    :param account_number: Полный номер счета.
+    :return: Замаскированный номер счета.
     """
-    if not account_number.isdigit() or len(account_number) < 5:
+    if not account_number.isdigit() or len(account_number) < 4:
         raise ValueError("Invalid account number")
-    return "*" * (len(account_number) - 4) + account_number[-4:]
+
+    masked_account = f"**{account_number[-4:]}"
+    return masked_account
