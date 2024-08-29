@@ -1,7 +1,6 @@
 import functools
 import logging
 import os
-from datetime import datetime
 import inspect
 
 
@@ -9,39 +8,44 @@ def log():
     def decorator_log(func):
         @functools.wraps(func)
         def wrapper_log(*args, **kwargs):
-            # Определяем имя модуля, где находится функция
             module = inspect.getmodule(func)
             if module is None:
-                # Если не удается определить модуль, используем __main__
-                module_name = '__main__'
+                module_name = "__main__"
             else:
                 module_name = module.__name__
 
-            # Путь к папке logs в корне проекта
-            log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'logs')
-            os.makedirs(log_dir, exist_ok=True)  # Создаем папку logs, если ее нет
+            log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "logs")
+            os.makedirs(log_dir, exist_ok=True)
             log_filename = os.path.join(log_dir, f"{module_name}.log")
 
-            # Настраиваем логгер
             logger = logging.getLogger(module_name)
             logger.setLevel(logging.INFO)
 
-            handler = logging.FileHandler(log_filename)
-            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
+            # Проверяем, есть ли уже хендлеры у логгера
+            if not logger.hasHandlers():
+                # Создаем FileHandler для записи в файл
+                file_handler = logging.FileHandler(log_filename)
+                file_formatter = logging.Formatter(
+                    "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+                )
+                file_handler.setFormatter(file_formatter)
 
-            # Удаляем старые хендлеры, чтобы не дублировать логи
-            if logger.hasHandlers():
-                logger.handlers.clear()
+                # Создаем StreamHandler для вывода в консоль
+                stream_handler = logging.StreamHandler()
+                stream_formatter = logging.Formatter(
+                    "%(name)s - %(levelname)s - %(message)s"
+                )
+                stream_handler.setFormatter(stream_formatter)
 
-            logger.addHandler(handler)
+                # Добавляем оба хендлера к логгеру
+                logger.addHandler(file_handler)
+                logger.addHandler(stream_handler)
 
             func_name = func.__name__
-            start_time = datetime.now()
+
             logger.info(f"Function {func_name} started. Inputs: {args}, {kwargs}")
             try:
                 result = func(*args, **kwargs)
-                end_time = datetime.now()
                 logger.info(f"Function {func_name} ended. Result: {result}")
                 return result
             except Exception as e:

@@ -5,12 +5,7 @@ from typing import Tuple
 from pathlib import Path
 from src.decorators import log
 from src.external_api import convert_to_rubles
-from src.generators import (
-    card_number_generator,
-    filter_by_currency,
-    transaction_descriptions,
-)
-from src.mask import get_mask_account
+
 from src.utils import read_transactions
 
 
@@ -146,7 +141,7 @@ def main_api():
         raise ValueError("API_KEY не найден в переменных окружения")
 
     current_dir = Path(__file__).parent
-    file_path = current_dir.parent / 'data' / 'operations.json'
+    file_path = current_dir.parent / "data" / "operations.json"
     transactions = read_transactions(file_path)
 
     for transaction in transactions:
@@ -177,26 +172,22 @@ def main():
             print(f"Ошибка: {e}")
 
 
-#@log()
-#def main_logs():
-    #"""
-    #Пример использования различных функций с логированием.
-    #"""
-    ## Логируем начало программы
-    #print("Запуск программы...")
+"""@log()
+def main_logs():
+    # Логируем начало программы
+    print("Запуск программы...")
 
-    ## Пример использования функции read_transactions
-    #transactions = read_transactions('data/operations.json')
-    #print(f'Прочитанные транзакции: {transactions}')
+    # Пример использования функции read_transactions
+    transactions = read_transactions('data/operations.json')
+    print(f'Прочитанные транзакции: {transactions}')
 
-    ## Пример использования функции get_mask_account
-    #print("Запуск функции get_mask_account...")
-    #test_account = "1234567890123456"
-    #masked = get_mask_account(test_account)
-    #print(f'Замаскированный номер счета: {masked}')
+    # Пример использования функции get_mask_account
+    print("Запуск функции get_mask_account...")
+    test_account = "1234567890123456"
+    masked = get_mask_account(test_account)
+    print(f'Замаскированный номер счета: {masked}')
 
-    #print("Программа завершена.")
-
+    print("Программа завершена.")"""
 
 if __name__ == "__main__":
     main()

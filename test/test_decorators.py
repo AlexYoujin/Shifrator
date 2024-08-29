@@ -1,10 +1,11 @@
 import pytest
-
 from src.decorators import log
+import logging
 
 
 # Тест успешного выполнения функции с логированием в консоль
-def test_log_success(capsys):
+@pytest.mark.usefixtures("caplog")
+def test_log_success(caplog):
     @log()
     def add(x, y):
         return x + y
@@ -12,14 +13,14 @@ def test_log_success(capsys):
     result = add(1, 2)
     assert result == 3
 
-    captured = capsys.readouterr()
-    assert "Function add started" in captured.out
-    assert "Function add ended" in captured.out
-    assert "Result: 3" in captured.out
+    # Проверяем наличие нужных сообщений в логе
+    assert "Function add started" in caplog.text
+    assert "Function add ended" in caplog.text
+    assert "Result: 3" in caplog.text
 
 
-# Тест возникновения исключения с логированием в консоль
-def test_log_exception(capsys):
+@pytest.mark.usefixtures("caplog")
+def test_log_exception(caplog):
     @log()
     def divide(x, y):
         return x / y
@@ -27,7 +28,7 @@ def test_log_exception(capsys):
     with pytest.raises(ZeroDivisionError):
         divide(1, 0)
 
-    captured = capsys.readouterr()
-    assert "Function divide started" in captured.out
-    assert "Function divide failed" in captured.out
-    assert "Error: division by zero" in captured.out
+    # Проверяем наличие нужных сообщений в логе
+    assert "Function divide started" in caplog.text
+    assert "Function divide failed" in caplog.text
+    assert "Error: division by zero" in caplog.text

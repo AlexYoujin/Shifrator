@@ -1,4 +1,5 @@
-from decorators import log
+from src.decorators import log
+
 
 @log()
 def filter_by_currency(transactions, currency_code):
@@ -10,8 +11,12 @@ def filter_by_currency(transactions, currency_code):
     :return: итератор, который поочередно выдает транзакции с заданной валютой
     """
     for transaction in transactions:
-        if transaction.get("operationAmount", {}).get("currency", {}).get("code") == currency_code:
+        if (
+            transaction.get("operationAmount", {}).get("currency", {}).get("code")
+            == currency_code
+        ):
             yield transaction
+
 
 @log()
 def transaction_descriptions(transactions):
@@ -25,6 +30,7 @@ def transaction_descriptions(transactions):
         description = transaction.get("description")
         if description:
             yield description
+
 
 @log()
 def card_number_generator(start, end):

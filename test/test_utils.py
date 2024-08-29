@@ -21,7 +21,7 @@ class TestUtils(unittest.TestCase):
     )
     def test_read_transactions(self, mock_file):
         """Тест на чтение данных из JSON файла"""
-        file_path = project_root / 'data' / 'operations.json'
+        file_path = "data", "operations.json"
         transactions = read_transactions(file_path)
         self.assertEqual(len(transactions), 1)
         self.assertEqual(transactions[0]["id"], 1)

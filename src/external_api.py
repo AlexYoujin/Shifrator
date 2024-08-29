@@ -1,10 +1,12 @@
 import requests
 import os
-from decorators import log
+from src.decorators import log
 from dotenv import load_dotenv
+import logging
 
 # Загрузка переменных окружения из .env файла
 load_dotenv()
+
 
 @log()
 def get_api_key():
@@ -14,6 +16,7 @@ def get_api_key():
     :return: API ключ как строку.
     """
     return os.getenv("EXCHANGE_RATE_API_KEY")
+
 
 @log()
 def convert_to_rubles(transaction, api_key):
@@ -43,6 +46,7 @@ def convert_to_rubles(transaction, api_key):
     except requests.RequestException as e:
         logging.error(f"Ошибка при конвертации валюты: {e}")
         return 0.0
+
 
 # Пример использования
 """if __name__ == "__main__":
