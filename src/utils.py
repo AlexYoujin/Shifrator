@@ -1,8 +1,9 @@
 import json
+
 from src.decorators import log
 
 
-@log()
+@log("utils")
 def read_transactions(file_path):
     """
     Читает JSON-файл с финансовыми транзакциями и возвращает список словарей.

@@ -1,7 +1,7 @@
 from src.decorators import log
 
 
-@log()
+@log("masks")
 def get_mask_card_number(card_number: str) -> str:
     if not card_number.isdigit() or len(card_number) < 16:
         raise ValueError("Invalid card number")
@@ -19,7 +19,7 @@ def get_mask_card_number(card_number: str) -> str:
     return masked_part
 
 
-@log()
+@log("masks")
 def get_mask_account(account_number: str) -> str:
     if not account_number.isdigit() or len(account_number) < 6:
         raise ValueError("Invalid account number")

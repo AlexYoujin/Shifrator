@@ -1,7 +1,7 @@
 from src.decorators import log
 
 
-@log()
+@log("generators")
 def filter_by_currency(transactions, currency_code):
     """
     Генератор, который возвращает транзакции, где валюта операции соответствует заданной.
@@ -12,13 +12,13 @@ def filter_by_currency(transactions, currency_code):
     """
     for transaction in transactions:
         if (
-            transaction.get("operationAmount", {}).get("currency", {}).get("code")
-            == currency_code
+                transaction.get("operationAmount", {}).get("currency", {}).get("code")
+                == currency_code
         ):
             yield transaction
 
 
-@log()
+@log("generators")
 def transaction_descriptions(transactions):
     """
     Генератор, который возвращает описание каждой операции по очереди.
@@ -32,7 +32,7 @@ def transaction_descriptions(transactions):
             yield description
 
 
-@log()
+@log("generators")
 def card_number_generator(start, end):
     """
     Генератор, который выдает номера банковских карт в формате XXXX XXXX XXXX XXXX в заданном диапазоне.

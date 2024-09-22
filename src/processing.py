@@ -1,12 +1,13 @@
 from datetime import datetime
 from typing import Dict, List
+
 from src.decorators import log
 from src.widget import get_date
 
 
-@log()
+@log("processing")
 def create_payment_dict(
-    payments: List[Dict[str, str]]
+        payments: List[Dict[str, str]]
 ) -> Dict[str, List[Dict[str, str]]]:
     """
     Создает словарь платежей, сгруппированных по дате.
@@ -23,7 +24,7 @@ def create_payment_dict(
     return payment_dict
 
 
-@log()
+@log("processing")
 def sort_payment_dates(payment_dict: Dict[str, List[Dict[str, str]]]) -> List[str]:
     """
     Сортирует даты в словаре платежей по возрастанию.

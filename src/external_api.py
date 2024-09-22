@@ -1,14 +1,16 @@
-import requests
-import os
-from src.decorators import log
-from dotenv import load_dotenv
 import logging
+import os
+
+import requests
+from dotenv import load_dotenv
+
+from src.decorators import log
 
 # Загрузка переменных окружения из .env файла
 load_dotenv()
 
 
-@log()
+@log("external_api")
 def get_api_key():
     """
     Получает API ключ из переменной окружения.
@@ -18,7 +20,7 @@ def get_api_key():
     return os.getenv("EXCHANGE_RATE_API_KEY")
 
 
-@log()
+@log("external_api")
 def convert_to_rubles(transaction, api_key):
     """
     Конвертирует сумму транзакции в рубли.

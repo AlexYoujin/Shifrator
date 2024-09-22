@@ -1,6 +1,6 @@
 import pytest
+
 from src.decorators import log
-import logging
 
 
 # Тест успешного выполнения функции с логированием в консоль

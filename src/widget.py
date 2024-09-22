@@ -1,15 +1,15 @@
 import os
 import re
 from datetime import datetime
-from typing import Tuple
 from pathlib import Path
+from typing import Tuple
+
 from src.decorators import log
 from src.external_api import convert_to_rubles
-
 from src.utils import read_transactions
 
 
-@log()
+@log("widget")
 def my_function(x: int, y: int) -> int:
     """
     Пример функции для тестирования логирования.
@@ -21,7 +21,7 @@ def my_function(x: int, y: int) -> int:
     return x + y
 
 
-@log()
+@log("widget")
 def extract_digits(input_string: str) -> str:
     """
     Извлекает цифровую часть из строки.
@@ -35,7 +35,7 @@ def extract_digits(input_string: str) -> str:
     return re.sub(r"\D", "", input_string)
 
 
-@log()
+@log("widget")
 def extract_word_and_numbers(input_string: str) -> Tuple[str, str]:
     """
     Извлекает первое слово и все номера из строки.
@@ -52,7 +52,7 @@ def extract_word_and_numbers(input_string: str) -> Tuple[str, str]:
     return word, numbers
 
 
-@log()
+@log("widget")
 def mask_account_card(input_str: str) -> str:
     """
     Определяет тип номера и маскирует его соответствующим образом.
@@ -109,7 +109,7 @@ def mask_account_card(input_str: str) -> str:
         raise ValueError("Invalid input")
 
 
-@log()
+@log("widget")
 def get_date(date_user: str) -> str:
     """
     Преобразует дату из формата "YYYY-MM-DDTHH:MM:SS.SSSSSS" в формат "ДД.ММ.ГГГГ".
@@ -131,7 +131,7 @@ def get_date(date_user: str) -> str:
         raise ValueError("Invalid date")
 
 
-@log()
+@log("widget")
 def main_api():
     """
     Основная функция для работы с API.
@@ -149,7 +149,7 @@ def main_api():
         print(f"Транзакция: {transaction['id']}, Сумма в рублях: {amount_in_rubles}")
 
 
-@log()
+@log("main")
 def main():
     """
     Основная функция программы.
@@ -172,7 +172,7 @@ def main():
             print(f"Ошибка: {e}")
 
 
-"""@log()
+"""@log("widget")
 def main_logs():
     # Логируем начало программы
     print("Запуск программы...")
