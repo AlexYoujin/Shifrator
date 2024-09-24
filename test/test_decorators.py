@@ -6,7 +6,7 @@ from src.decorators import log
 # Тест успешного выполнения функции с логированием в консоль
 @pytest.mark.usefixtures("caplog")
 def test_log_success(caplog):
-    @log()
+    @log("test")
     def add(x, y):
         return x + y
 
@@ -21,7 +21,7 @@ def test_log_success(caplog):
 
 @pytest.mark.usefixtures("caplog")
 def test_log_exception(caplog):
-    @log()
+    @log("test")
     def divide(x, y):
         return x / y
 

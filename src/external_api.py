@@ -11,7 +11,7 @@ load_dotenv()
 
 
 @log("external_api")
-def get_api_key():
+def get_api_key() -> str:
     """
     Получает API ключ из переменной окружения.
 
@@ -21,7 +21,7 @@ def get_api_key():
 
 
 @log("external_api")
-def convert_to_rubles(transaction, api_key):
+def convert_to_rubles(transaction: dict, api_key: str) -> float:
     """
     Конвертирует сумму транзакции в рубли.
 
@@ -48,14 +48,3 @@ def convert_to_rubles(transaction, api_key):
     except requests.RequestException as e:
         logging.error(f"Ошибка при конвертации валюты: {e}")
         return 0.0
-
-
-# Пример использования
-"""if __name__ == "__main__":
-    transaction = {"amount": 100, "currency": "USD"}
-    api_key = get_api_key()
-    if api_key:
-        rub_amount = convert_to_rubles(transaction, api_key)
-        print(f"Сумма в рублях: {rub_amount}")
-    else:
-        print("API ключ не найден.")"""

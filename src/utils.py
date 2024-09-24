@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from src.decorators import log
 
@@ -22,11 +23,3 @@ def read_transactions(file_path):
         return []
     except json.JSONDecodeError:
         return []
-
-
-# Пример использования функции
-"""if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent
-    file_path = project_root / 'data' / 'operations.json'
-    transactions = read_transactions(file_path)
-    print(transactions)"""

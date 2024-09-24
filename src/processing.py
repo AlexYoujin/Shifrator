@@ -6,9 +6,7 @@ from src.widget import get_date
 
 
 @log("processing")
-def create_payment_dict(
-        payments: List[Dict[str, str]]
-) -> Dict[str, List[Dict[str, str]]]:
+def create_payment_dict(payments: List[Dict[str, str]]) -> Dict[str, List[Dict[str, str]]]:
     """
     Создает словарь платежей, сгруппированных по дате.
 

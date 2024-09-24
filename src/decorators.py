@@ -4,6 +4,13 @@ import os
 
 
 def log(module_name: str):
+    """
+    Декоратор для логирования вызовов функций.
+
+    :param module_name: Имя модуля для логирования.
+    :return: Декоратор.
+    """
+
     def decorator_log(func):
         @functools.wraps(func)
         def wrapper_log(*args, **kwargs):

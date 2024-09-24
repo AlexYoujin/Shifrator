@@ -172,22 +172,5 @@ def main():
             print(f"Ошибка: {e}")
 
 
-"""@log("widget")
-def main_logs():
-    # Логируем начало программы
-    print("Запуск программы...")
-
-    # Пример использования функции read_transactions
-    transactions = read_transactions('data/operations.json')
-    print(f'Прочитанные транзакции: {transactions}')
-
-    # Пример использования функции get_mask_account
-    print("Запуск функции get_mask_account...")
-    test_account = "1234567890123456"
-    masked = get_mask_account(test_account)
-    print(f'Замаскированный номер счета: {masked}')
-
-    print("Программа завершена.")"""
-
 if __name__ == "__main__":
     main()
