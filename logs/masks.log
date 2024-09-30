@@ -1,0 +1,2 @@
+2024-09-30 17:11:41,885 - masks - INFO - Function get_mask_card_number started. Inputs: ('abcdabcdabcdabcd',), {}
+2024-09-30 17:11:41,885 - masks - ERROR - Function get_mask_card_number failed. Error: Invalid card number. Inputs: ('abcdabcdabcdabcd',), {}

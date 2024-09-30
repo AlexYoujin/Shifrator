@@ -11,7 +11,7 @@ load_dotenv()
 
 
 @log("external_api")
-def get_api_key() -> str:
+def get_api_key():
     """
     Получает API ключ из переменной окружения.
 

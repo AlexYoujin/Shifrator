@@ -1,0 +1,2 @@
+2024-09-30 17:11:41,894 - processing - INFO - Function sort_payment_dates started. Inputs: ({'11.03.2024': [{'date': '2024-03-11T02:26:18.671407', 'amount': '100'}, {'date': '2024-03-11T10:15:30.123456', 'amount': '200'}], '12.03.2024': [{'date': '2024-03-12T08:00:00.000000', 'amount': '300'}]},), {}
+2024-09-30 17:11:41,895 - processing - INFO - Function sort_payment_dates ended. Result: ['11.03.2024', '12.03.2024']

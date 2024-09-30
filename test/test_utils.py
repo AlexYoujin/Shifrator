@@ -1,6 +1,8 @@
 import os
 import unittest
 from unittest.mock import mock_open, patch
+import pandas as pd
+from io import StringIO
 
 from dotenv import load_dotenv
 
@@ -19,9 +21,9 @@ class TestUtils(unittest.TestCase):
         new_callable=mock_open,
         read_data='[{"id": 1, "amount": 100, "currency": "USD"}]',
     )
-    def test_read_transactions(self, mock_file):
+    def test_read_transactions_json(self, mock_file):
         """Тест на чтение данных из JSON файла"""
-        file_path = "data", "operations.json"
+        file_path = "data/operations.json"
         transactions = read_transactions(file_path)
         self.assertEqual(len(transactions), 1)
         self.assertEqual(transactions[0]["id"], 1)
@@ -29,11 +31,33 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(transactions[0]["currency"], "USD")
 
     @patch("builtins.open", new_callable=mock_open, read_data="[]")
-    def test_read_empty_transactions(self, mock_file):
+    def test_read_empty_transactions_json(self, mock_file):
         """Тест на чтение пустого JSON файла"""
         file_path = "data/empty.json"
         transactions = read_transactions(file_path)
         self.assertEqual(transactions, [])
+
+    def test_read_transactions_csv(self):
+        """Тест на чтение данных из CSV файла"""
+        data = StringIO("id,amount,currency\n1,100,USD")
+        with patch("pandas.read_csv", return_value=pd.read_csv(data)):
+            file_path = "data/operations.csv"
+            transactions = read_transactions(file_path)
+            self.assertEqual(len(transactions), 1)
+            self.assertEqual(transactions[0]["id"], 1)
+            self.assertEqual(transactions[0]["amount"], 100)
+            self.assertEqual(transactions[0]["currency"], "USD")
+
+    def test_read_transactions_xlsx(self):
+        """Тест на чтение данных из XLSX файла"""
+        data = pd.DataFrame({"id": [1], "amount": [100], "currency": ["USD"]})
+        with patch("pandas.read_excel", return_value=data):
+            file_path = "data/operations.xlsx"
+            transactions = read_transactions(file_path)
+            self.assertEqual(len(transactions), 1)
+            self.assertEqual(transactions[0]["id"], 1)
+            self.assertEqual(transactions[0]["amount"], 100)
+            self.assertEqual(transactions[0]["currency"], "USD")
 
     @patch("requests.get")
     def test_convert_to_rubles(self, mock_get):
