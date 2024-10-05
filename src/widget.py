@@ -170,7 +170,3 @@ def main():
             print(f"Замаскированные данные: {result}")
         except ValueError as e:
             print(f"Ошибка: {e}")
-
-
-if __name__ == "__main__":
-    main()

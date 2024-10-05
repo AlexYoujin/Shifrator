@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import Path
 from src.decorators import log
 
+
 @log("utils")
 def read_transactions(file_path):
     """
