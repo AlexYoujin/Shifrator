@@ -24,12 +24,27 @@ def load_transactions_from_xlsx(file_path):
 
 
 def filter_transactions_by_status(transactions, status):
-    return [t for t in transactions if t.get('state', '').lower() == status.lower()]
+    status = status.lower()
+    return [
+        t for t in transactions
+        if t.get('state') and t['state'].lower() == status
+    ]
 
 
 def sort_transactions_by_date(transactions, ascending=True):
-    return sorted(transactions, key=lambda x: datetime.strptime(x['date'], '%Y-%m-%dT%H:%M:%S.%fZ'),
-                  reverse=not ascending)
+    def parse_date(date_str):
+        try:
+            # Попытка разобрать дату с микросекундами и 'Z' на конце
+            return datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+        except ValueError:
+            try:
+                # Попытка разобрать дату без микросекунд, но с 'Z' на конце
+                return datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f')
+            except ValueError:
+                # Попытка разобрать дату без микросекунд и без 'Z'
+                return datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ')
+
+    return sorted(transactions, key=lambda x: parse_date(x['date']), reverse=not ascending)
 
 
 def filter_ruble_transactions(transactions):
