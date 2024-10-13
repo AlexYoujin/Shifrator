@@ -3,41 +3,28 @@ import csv
 import openpyxl
 from datetime import datetime
 import os
+from collections import Counter
 
 
 def load_transactions_from_json(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
-        transactions = json.load(file)
-    return transactions
+        return json.load(file)
 
 
 def load_transactions_from_csv(file_path):
-    transactions = []
     with open(file_path, 'r', encoding='utf-8') as file:
-        reader = csv.DictReader(file, delimiter=';')
-        for row in reader:
-            transactions.append(row)
-    return transactions
+        return list(csv.DictReader(file, delimiter=';'))
 
 
 def load_transactions_from_xlsx(file_path):
-    transactions = []
     workbook = openpyxl.load_workbook(file_path)
     sheet = workbook.active
     headers = [cell.value for cell in sheet[1]]
-    for row in sheet.iter_rows(min_row=2, values_only=True):
-        transaction = dict(zip(headers, row))
-        transactions.append(transaction)
-    return transactions
+    return [dict(zip(headers, row)) for row in sheet.iter_rows(min_row=2, values_only=True)]
 
 
 def filter_transactions_by_status(transactions, status):
-    status = status.lower()
-    filtered_transactions = [
-        t for t in transactions
-        if 'state' in t and t['state'] is not None and t['state'].lower() == status
-    ]
-    return filtered_transactions
+    return [t for t in transactions if t.get('state', '').lower() == status.lower()]
 
 
 def sort_transactions_by_date(transactions, ascending=True):
@@ -46,39 +33,27 @@ def sort_transactions_by_date(transactions, ascending=True):
 
 
 def filter_ruble_transactions(transactions):
-    return [t for t in transactions if 'currency_name' in t and t['currency_name'] == 'руб.']
+    return [t for t in transactions if t.get('currency_name') == 'руб.']
 
 
 def filter_transactions_by_description(transactions, keyword):
-    return [t for t in transactions if 'description' in t and keyword.lower() in t['description'].lower()]
+    return [t for t in transactions if keyword.lower() in t.get('description', '').lower()]
 
 
 def get_files_in_directory(directory, extensions):
-    """
-    Получает список файлов с заданными расширениями в указанной директории.
-
-    Args:
-        directory (str): Путь к директории.
-        extensions (list): Список расширений файлов.
-
-    Returns:
-        list: Список файлов с заданными расширениями.
-    """
-    files = []
-    for file in os.listdir(directory):
-        if file.endswith(tuple(extensions)):
-            files.append(file)
-    return files
+    return [file for file in os.listdir(directory) if file.endswith(tuple(extensions))]
 
 
 def get_transaction_amount_and_currency(transaction):
-    """Получает сумму и валюту в зависимости от формата данных."""
-    if 'operationAmount' in transaction:
-        # JSON формат
+    if 'operationAmount' in transaction:  # JSON format
         return transaction['operationAmount']['amount'], transaction['operationAmount']['currency']['name']
-    else:
-        # CSV/XLSX формат
+    else:  # CSV/XLSX format
         return transaction['amount'], transaction.get('currency_name', '')
+
+
+def count_transactions_by_status(transactions):
+    statuses = [t.get('state', '').lower() for t in transactions if t.get('state')]
+    return Counter(statuses)
 
 
 def main():
@@ -90,63 +65,48 @@ def main():
 
     choice = input("Введите номер пункта меню: ")
     data_directory = r"C:\Users\alexy\PycharmProjects\Shifrator\data"
-    if choice == '1':
-        files = get_files_in_directory(data_directory, ['.json'])
+    file_types = {'1': ['.json'], '2': ['.csv'], '3': ['.xlsx']}
+
+    if choice in file_types:
+        files = get_files_in_directory(data_directory, file_types[choice])
         if not files:
-            print("Не найдено ни одного JSON-файла в директории.")
+            print(f"Не найдено файлов с расширением {file_types[choice][0]}")
             return
-        print("Доступные JSON-файлы:")
+        print(f"Доступные файлы ({file_types[choice][0]}):")
         for i, file in enumerate(files, start=1):
             print(f"{i}. {file}")
         file_choice = int(input("Введите номер файла: ")) - 1
-        if file_choice < 0 or file_choice >= len(files):
+        if not (0 <= file_choice < len(files)):
             print("Неверный выбор файла.")
             return
         file_path = os.path.join(data_directory, files[file_choice])
-        transactions = load_transactions_from_json(file_path)
-        print("Для обработки выбран JSON-файл.")
-    elif choice == '2':
-        files = get_files_in_directory(data_directory, ['.csv'])
-        if not files:
-            print("Не найдено ни одного CSV-файла в директории.")
-            return
-        print("Доступные CSV-файлы:")
-        for i, file in enumerate(files, start=1):
-            print(f"{i}. {file}")
-        file_choice = int(input("Введите номер файла: ")) - 1
-        if file_choice < 0 or file_choice >= len(files):
-            print("Неверный выбор файла.")
-            return
-        file_path = os.path.join(data_directory, files[file_choice])
-        transactions = load_transactions_from_csv(file_path)
-        print("Для обработки выбран CSV-файл.")
-    elif choice == '3':
-        files = get_files_in_directory(data_directory, ['.xlsx'])
-        if not files:
-            print("Не найдено ни одного XLSX-файла в директории.")
-            return
-        print("Доступные XLSX-файлы:")
-        for i, file in enumerate(files, start=1):
-            print(f"{i}. {file}")
-        file_choice = int(input("Введите номер файла: ")) - 1
-        if file_choice < 0 or file_choice >= len(files):
-            print("Неверный выбор файла.")
-            return
-        file_path = os.path.join(data_directory, files[file_choice])
-        transactions = load_transactions_from_xlsx(file_path)
-        print("Для обработки выбран XLSX-файл.")
+
+        # Загрузка транзакций в зависимости от выбора
+        if choice == '1':
+            transactions = load_transactions_from_json(file_path)
+        elif choice == '2':
+            transactions = load_transactions_from_csv(file_path)
+        else:
+            transactions = load_transactions_from_xlsx(file_path)
+
+        print(f"Файл {files[file_choice]} успешно загружен.")
     else:
         print("Неверный выбор. Пожалуйста, выберите правильный пункт меню.")
         return
 
+    # Подсчет количества транзакций по статусам
+    status_counts = count_transactions_by_status(transactions)
+    print("Количество транзакций по статусам:")
+    for status, count in status_counts.items():
+        print(f"{status}: {count}")
+
     available_statuses = ["executed", "canceled", "pending"]
     print("Введите статус, по которому необходимо выполнить фильтрацию.")
-    print("Доступные для фильтровки статусы:")
     for i, status in enumerate(available_statuses, start=1):
         print(f"{i}. {status.upper()}")
 
     status_choice = int(input("Введите номер статуса: ")) - 1
-    if status_choice < 0 or status_choice >= len(available_statuses):
+    if not (0 <= status_choice < len(available_statuses)):
         print("Неверный выбор статуса.")
         return
 
@@ -154,20 +114,15 @@ def main():
     filtered_transactions = filter_transactions_by_status(transactions, status)
     print(f"Операции отфильтрованы по статусу \"{status.upper()}\"")
 
-    sort_by_date = input("Отсортировать операции по дате? Да/Нет: ").lower()
-    if sort_by_date == 'да':
+    if input("Отсортировать операции по дате? Да/Нет: ").lower() == 'да':
         sort_order = input("Отсортировать по возрастанию или по убыванию? ").lower()
-        if sort_order == 'по возрастанию':
-            filtered_transactions = sort_transactions_by_date(filtered_transactions, ascending=True)
-        elif sort_order == 'по убыванию':
-            filtered_transactions = sort_transactions_by_date(filtered_transactions, ascending=False)
+        ascending = sort_order == 'по возрастанию'
+        filtered_transactions = sort_transactions_by_date(filtered_transactions, ascending=ascending)
 
-    ruble_only = input("Выводить только рублевые транзакции? Да/Нет: ").lower()
-    if ruble_only == 'да':
+    if input("Выводить только рублевые транзакции? Да/Нет: ").lower() == 'да':
         filtered_transactions = filter_ruble_transactions(filtered_transactions)
 
-    filter_by_description = input("Отфильтровать список транзакций по определенному слову в описании? Да/Нет: ").lower()
-    if filter_by_description == 'да':
+    if input("Отфильтровать список транзакций по определенному слову в описании? Да/Нет: ").lower() == 'да':
         keyword = input("Введите слово для фильтрации: ")
         filtered_transactions = filter_transactions_by_description(filtered_transactions, keyword)
 

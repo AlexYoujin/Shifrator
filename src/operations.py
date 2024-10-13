@@ -29,7 +29,7 @@ def categorize_operations(operations: List[Dict[str, str]], categories: List[str
         categories (List[str]): Список категорий операций.
 
     Returns:
-        Dict[str, int]: Словарь, где ключи — это названия категорий, а значения — это количество операций в каждой категории.
+        Dict[str, int]: Словарь, где ключи — названия категорий, а значения — количество операций в каждой категории.
     """
     category_count = {category: 0 for category in categories}
     for operation in operations:
