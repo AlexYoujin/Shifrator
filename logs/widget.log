@@ -1,0 +1,2 @@
+2024-09-30 17:11:42,035 - widget - INFO - Function mask_account_card started. Inputs: ('1234567812345678',), {}
+2024-09-30 17:11:42,035 - widget - INFO - Function mask_account_card ended. Result: 1234 56** **** 5678
