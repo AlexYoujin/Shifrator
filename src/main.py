@@ -4,6 +4,7 @@ import openpyxl
 from datetime import datetime
 import os
 from collections import Counter
+from src.models import Product, Category
 
 
 def load_transactions_from_json(file_path):
@@ -21,6 +22,34 @@ def load_transactions_from_xlsx(file_path):
     sheet = workbook.active
     headers = [cell.value for cell in sheet[1]]
     return [dict(zip(headers, row)) for row in sheet.iter_rows(min_row=2, values_only=True)]
+
+
+def load_data_from_json(file_path: str):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+
+    categories = []
+
+    # Проход по категориям в JSON
+    for category_data in data:
+        category = Category(
+            name=category_data['name'],
+            description=category_data['description']
+        )
+
+        # Проход по продуктам каждой категории
+        for product_data in category_data['products']:
+            product = Product(
+                name=product_data['name'],
+                description=product_data['description'],
+                price=product_data['price'],
+                quantity=product_data['quantity']
+            )
+            category.add_product(product)
+
+        categories.append(category)
+
+    return categories
 
 
 def filter_transactions_by_status(transactions, status):
